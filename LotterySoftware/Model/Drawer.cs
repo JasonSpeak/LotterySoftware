@@ -6,6 +6,7 @@ namespace LotterySoftware.Model
     {
         private string _awardName;
         private string _awardPrize;
+        private int _id;
 
         public string DrawCode { get; }
         public string DrawName { get; }
@@ -27,6 +28,16 @@ namespace LotterySoftware.Model
             {
                 _awardPrize = value;
                 RaisePropertyChanged(() => _awardPrize);
+            }
+        }
+
+        public int Id
+        {
+            get => _id;
+            set
+            {
+                _id = value;
+                RaisePropertyChanged(()=>Id);
             }
         }
 

@@ -13,15 +13,16 @@ namespace LotterySoftware.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private int _currentAwardIndex;
-        private readonly DispatcherTimer _timer;
-        private readonly List<Drawer> _drawersImport;
-        private readonly ObservableCollection<Drawer> _resultWinner;
+        private DispatcherTimer _timer;
+        private List<Drawer> _drawersImport;
+        private ObservableCollection<Drawer> _resultWinner;
 
         private bool _isImport;
         private bool _isExport;
         private bool _isLottery;
         private bool _isStartOrPause;
         private string _lotteryName;
+        private string _colorSlider;
         private string _currentAwardName;
         private string _showMaxButton;
         private string _showNormalButton;
@@ -66,6 +67,7 @@ namespace LotterySoftware.ViewModel
                 RaisePropertyChanged(()=>IsImport);
             }
         }
+
         public bool IsExport
         {
             get => _isExport;
@@ -75,6 +77,7 @@ namespace LotterySoftware.ViewModel
                 RaisePropertyChanged(()=>IsExport);
             }
         }
+
         public string ShowMaxButton
         {
             get => _showMaxButton;
@@ -102,6 +105,16 @@ namespace LotterySoftware.ViewModel
             {
                 _currentAwardName = value;
                 RaisePropertyChanged(()=>CurrentAwardName);
+            }
+        }
+
+        public string ColorSlider
+        {
+            get => _colorSlider;
+            set
+            {
+                _colorSlider = value;
+                RaisePropertyChanged(()=> ColorSlider);
             }
         }
 
@@ -146,17 +159,22 @@ namespace LotterySoftware.ViewModel
 
         public MainViewModel()
         {
+            Init();
             InitializationXml();
+        }
+
+        private void Init()
+        {
             _timer = new DispatcherTimer();
             _timer.Tick += OnRefreshClockTimeUp;
-            _timer.Interval = new TimeSpan(0,0,0,0,90);
+            _timer.Interval = new TimeSpan(0, 0, 0, 0, 90);
             IsImport = true;
             IsExport = false;
             IsLottery = false;
+            ColorSlider = "#4e4e4e";
             ShowMaxButton = "Visible";
             ShowNormalButton = "Collapsed";
             LotteryName = "抽奖";
-            CurrentAwardName = ShowAwardsList[_currentAwardIndex].AwardsName;
             _resultWinner = new ObservableCollection<Drawer>();
             IsStartOrPause = true;
             _drawersImport = new List<Drawer>();
@@ -166,19 +184,18 @@ namespace LotterySoftware.ViewModel
         private void OnRefreshClockTimeUp(object sender, EventArgs e)
         {
             ShowDrawerList.Clear();
-            
             if (ShowAwardsList[_currentAwardIndex].AwardsNumber > _drawersImport.Count)
             {
+                var k = 1;
                 foreach (var t in _drawersImport)
                 {
-                    var drawer = new Drawer(t.DrawCode,t.DrawName);
+                    var drawer = new Drawer(t.DrawCode, t.DrawName) {Id = k};
+                    k++;
                     ShowDrawerList.Add(drawer);
                     IsLottery = false;
-                    IsExport = true;
                 }
                 return;
             }
-
             var indexList = new List<int>();
             var random = new Random();
             for (var i = 0; i < ShowAwardsList[_currentAwardIndex].AwardsNumber; i++)
@@ -191,9 +208,11 @@ namespace LotterySoftware.ViewModel
                     j = -1;
                 }
                 indexList.Add(index);
-                var drawer = new Drawer(_drawersImport[index].DrawCode, _drawersImport[index].DrawName);
+                var drawer = new Drawer(_drawersImport[index].DrawCode, _drawersImport[index].DrawName) {Id = i + 1};
                 ShowDrawerList.Add(drawer);
             }
+
+            ColorSlider = ShowDrawerList.Count > 10 ? "" : "#4e4e4e";
         }
 
         private void WinningResult()
@@ -207,7 +226,8 @@ namespace LotterySoftware.ViewModel
                 var winners = new Drawer(ShowDrawerList[i].DrawCode, ShowDrawerList[i].DrawName)
                 {
                     AwardName = ShowAwardsList[_currentAwardIndex].AwardsName,
-                    AwardPrize = ShowAwardsList[_currentAwardIndex].AwardsPrize
+                    AwardPrize = ShowAwardsList[_currentAwardIndex].AwardsPrize,
+                    Id = i + 1
                 };
                 _resultWinner.Add(winners);
                 for (var j = 0; j < _drawersImport.Count; j++)
@@ -221,27 +241,32 @@ namespace LotterySoftware.ViewModel
                 IsLottery = false;
                 IsExport = true;
             }
+            ColorSlider = ShowDrawerList.Count > 10 ? "" : "#4e4e4e";
         }
 
         private void LotteryButton()
         {
+            if (IsLottery != true) return;
+            SetAwardsVisibilityVisible();
             if (IsStartOrPause)
             {
                 _timer.Start();
                 ShowAwardsList[_currentAwardIndex].AwardsColor = "#000000";
                 LotteryName = "结束";
+                IsImport = false;
                 IsStartOrPause = false;
-                CurrentAwardName = ShowAwardsList[_currentAwardIndex].AwardsName;
+                CurrentAwardName = System.Text.RegularExpressions.Regex.Replace(ShowAwardsList[_currentAwardIndex].AwardsName, " ··· ", "");
             }
             else
             {
                 _timer.Stop();
                 WinningResult();
-                _currentAwardIndex += 1 ;
+                IsExport = true;
+                IsImport = true;
+                _currentAwardIndex += 1;
                 if (_currentAwardIndex == ShowAwardsList.Count)
                 {
                     IsLottery = false;
-                    IsExport = true;
                 }
                 LotteryName = "抽奖";
                 IsStartOrPause = true;
@@ -250,14 +275,48 @@ namespace LotterySoftware.ViewModel
 
         private void Import()
         {
-            ExcelAndXmlHandle.GetDrawers(_drawersImport);
-            foreach (var t in _drawersImport)
+            if (_resultWinner.Count !=0)
             {
-                ShowDrawerList.Add(t);
+                if (MessageBox.Show("是否清空中奖名单并导入文件？", "警告", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                {
+                    IsExport = false;
+                    ShowDrawerList.Clear();
+                    _resultWinner.Clear();
+                    SetAwardsVisibilityCollapsed();
+                    _currentAwardIndex = 0;
+                    SetAwardsVisibilityCollapsed();
+                    CurrentAwardName = "";
+                    for (var i = 0; i < _showAwardsList.Count; i++)
+                    {
+                        ShowAwardsList[i].AwardsColor = "#b5b5b5";
+                    }
+                }
+                else
+                {
+                    return;
+                }
             }
-            if (ShowDrawerList.Count == 0) return;
-            IsImport = false;
-            IsLottery = true;
+            var fileName = ExcelAndXmlHandle.GetDrawers(_drawersImport);
+            if (fileName == "") return;
+            {
+                ShowDrawerList.Clear();
+                IsExport = false;
+                _currentAwardIndex = 0;
+                SetAwardsVisibilityCollapsed();
+                CurrentAwardName = "";
+                for (var i = 0; i < _showAwardsList.Count; i++)
+                {
+                    ShowAwardsList[i].AwardsColor = "#b5b5b5";
+                }
+                foreach (var t in _drawersImport)
+                {
+                    ShowDrawerList.Add(t);
+                }
+                if (ShowDrawerList.Count == 0) return;
+                SetAwardsVisibilityCollapsed();
+                IsLottery = true;
+            }
+            ColorSlider = ShowDrawerList.Count > 10 ? "" : "#4e4e4e";
         }
 
         private void Export()
@@ -306,21 +365,63 @@ namespace LotterySoftware.ViewModel
             var nameList = xmlDoc.GetElementsByTagName("Name");
             var priceList = xmlDoc.GetElementsByTagName("Prize");
             var numberList = xmlDoc.GetElementsByTagName("Number");
-
+            const string point = " ··· ";
             for (var i = 0; i < nameList.Count; i++)
             {
                 if (nameList[i].InnerText == "") continue;
-
                 var award = new Awards
                 {
-                    AwardsName = nameList[i].InnerText,
                     AwardsPrize = priceList[i].InnerText,
                     AwardsNumber = int.Parse(numberList[i].InnerText),
-                    AwardsColor = "#b5b5b5"
-                };
+                    AwardsColor = "#b5b5b5",
+                    VisibilityAwards = "Visible"
+            };
+                if (i < nameList.Count - 1)
+                {
+                    award.AwardsName = nameList[i].InnerText + point;
+                }
+                else
+                {
+                    award.AwardsName = nameList[i].InnerText;
+                }
                 ShowAwardsList.Add(award);
             }
         }
 
+        private void SetAwardsVisibilityCollapsed()
+        {
+            foreach (var t in ShowAwardsList)
+            {
+                t.VisibilityAwards = "Collapsed";
+            }
+        }
+
+        private void SetAwardsVisibilityVisible()
+        {
+            foreach (var t in ShowAwardsList)
+            {
+                t.VisibilityAwards = "Visible";
+            }
+        }
+
+        public static string OpenFileDialog()
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog()
+            {
+            Filter = "Excel Files(*.xlsx)|*.xlsx"
+            };
+            openFileDialog.ShowDialog();
+            return openFileDialog.FileName;
+        }
+
+        public static string SaveFileDialog()
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Excel Files(*.xlsx)|*.xlsx"
+            };
+            saveFileDialog.ShowDialog();
+            return saveFileDialog.FileName;
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using LotterySoftware.Properties;
+using LotterySoftware.ViewModel;
 using Microsoft.Office.Interop.Excel;
 using Application = Microsoft.Office.Interop.Excel.Application;
 
@@ -36,27 +37,28 @@ namespace LotterySoftware.Model
             return value;
         }
 
-        public static void GetDrawers(List<Drawer> excelValueList)
+        public static string GetDrawers(List<Drawer> excelValueList)
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog()
+            var fileName = MainViewModel.OpenFileDialog();
+            if (fileName == "")
             {
-                Filter = "Excel Files(*.xlsx)|*.xlsx"
-            };
-            openFileDialog.ShowDialog();
-            if (openFileDialog.FileName == "") return ;
-            var handle = _lopen(openFileDialog.FileName, OfReadwrite | OfShareDenyNone);
+                excelValueList.Clear();
+                return fileName;
+            }
+            var handle = _lopen(fileName, OfReadwrite | OfShareDenyNone);
             if (handle == FileError)
             {
                 MessageBox.Show(Resources.ExcelAndXmlHandle_GetDrawers_,Resources.ExcelAndXmlHandle_GetDrawers_文件正在使用);
-                return;
+                return null;
             }
             CloseHandle(handle);
-            var document = SpreadsheetDocument.Open(openFileDialog.FileName, false);
+            var document = SpreadsheetDocument.Open(fileName, false);
             var sheet = document.WorkbookPart.Workbook.Descendants<Sheet>().First();
             var worksheetPart = (WorksheetPart)document.WorkbookPart.GetPartById(sheet.Id);
             var worksheet = worksheetPart.Worksheet;
             var rows = worksheet.Descendants<Row>();
             excelValueList.Clear();
+            var j = 0;
             foreach (var row in rows)
             {
                 var cellValues = new string[row.Count()];
@@ -68,22 +70,20 @@ namespace LotterySoftware.Model
                     cellValues[i] = columnValues;
                     i++;
                 }
-                var drawer = new Drawer(cellValues[1], cellValues[0]);
+                var drawer = new Drawer(cellValues[1], cellValues[0]) {Id = j+1};
+                j++;
                 if (!string.IsNullOrEmpty(drawer.DrawCode))
                 {
                     excelValueList.Add(drawer);
                 }
             }
+            return fileName;
         }
 
         public static void ExportExcelList(ObservableCollection<Drawer> listBoxDrawer)
         {
-            var saveFileDialog = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Excel Files(*.xlsx)|*.xlsx"
-            };
-            saveFileDialog.ShowDialog();
-            if (saveFileDialog.FileName != "")
+            var fileName = MainViewModel.SaveFileDialog();
+            if (fileName != "")
             {
                 var app = new Application
                 {
@@ -113,7 +113,7 @@ namespace LotterySoftware.Model
                     worksheet.Range["D" + r].Value = listBoxDrawer[r - 2].DrawName;
                 }
                 worksheet.Application.DisplayAlerts = true;
-                worksheet.SaveAs(saveFileDialog.FileName);
+                worksheet.SaveAs(fileName);
 
                 Marshal.ReleaseComObject(worksheet);
                 workbook.Close();

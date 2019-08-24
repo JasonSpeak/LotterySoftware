@@ -8,6 +8,7 @@ namespace LotterySoftware.Model
         private string _awardsPrize;
         private int _awardsNumber;
         private string _awardsColor;
+        private string _visibilityAwards;
 
         public string AwardsName
         {
@@ -46,6 +47,16 @@ namespace LotterySoftware.Model
             {
                 _awardsColor = value;
                 RaisePropertyChanged(()=>AwardsColor);
+            }
+        }
+
+        public string VisibilityAwards
+        {
+            get => _visibilityAwards;
+            set
+            {
+                _visibilityAwards = value;
+                RaisePropertyChanged(() => VisibilityAwards);
             }
         }
     }
