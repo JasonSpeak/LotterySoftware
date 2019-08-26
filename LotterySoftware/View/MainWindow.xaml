@@ -268,11 +268,10 @@
                 <ListBox
                     Grid.Row="1"
                     Grid.Column="1"
-                    HorizontalAlignment="Left"
                     Width="300"
+                    HorizontalAlignment="Left"
                     Background="#f1f1f1"
                     BorderThickness="0"
-                    
                     ItemsSource="{Binding ShowAwardsList}">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>

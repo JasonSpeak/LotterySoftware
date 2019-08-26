@@ -4,9 +4,9 @@ namespace LotterySoftware.Model
 {
     public class Awards : ObservableObject
     {
+        private int _awardsNumber;
         private string _awardsName;
         private string _awardsPrize;
-        private int _awardsNumber;
         private string _awardsColor;
         private string _visibilityAwards;
 

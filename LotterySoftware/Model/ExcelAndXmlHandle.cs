@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using LotterySoftware.Properties;
 using LotterySoftware.ViewModel;
 using Microsoft.Office.Interop.Excel;
 using Application = Microsoft.Office.Interop.Excel.Application;
@@ -48,7 +46,6 @@ namespace LotterySoftware.Model
             var handle = _lopen(fileName, OfReadwrite | OfShareDenyNone);
             if (handle == FileError)
             {
-                MessageBox.Show(Resources.ExcelAndXmlHandle_GetDrawers_,Resources.ExcelAndXmlHandle_GetDrawers_文件正在使用);
                 return null;
             }
             CloseHandle(handle);
