@@ -7,8 +7,7 @@ namespace LotterySoftware.Model
         private int _awardsNumber;
         private string _awardsName;
         private string _awardsPrize;
-        private string _awardsColor;
-        private string _visibilityAwards;
+        private bool _isBulgeDisplay;
 
         public string AwardsName
         {
@@ -40,23 +39,13 @@ namespace LotterySoftware.Model
             }
         }
 
-        public string AwardsColor
+        public bool IsBulgeDisplay
         {
-            get => _awardsColor;
+            get => _isBulgeDisplay;
             set
             {
-                _awardsColor = value;
-                RaisePropertyChanged(()=>AwardsColor);
-            }
-        }
-
-        public string VisibilityAwards
-        {
-            get => _visibilityAwards;
-            set
-            {
-                _visibilityAwards = value;
-                RaisePropertyChanged(() => VisibilityAwards);
+                _isBulgeDisplay = value;
+                RaisePropertyChanged(()=> IsBulgeDisplay);
             }
         }
     }

@@ -11,7 +11,7 @@ using Application = Microsoft.Office.Interop.Excel.Application;
 
 namespace LotterySoftware.Model
 {
-    public class ExcelAndXmlHandle
+    public class ExcelHandle
     {
         private const int OfReadwrite = 2;
         private const int OfShareDenyNone = 0x40;
@@ -35,13 +35,15 @@ namespace LotterySoftware.Model
             return value;
         }
 
-        public static string GetDrawers(List<Drawer> excelValueList)
+        public static List<Drawer> GetDrawers()
         {
-            var fileName = MainViewModel.OpenFileDialog();
+            var mainViewModel = new MainViewModel();
+            var excelValueList = new List<Drawer>();
+            var fileName = mainViewModel.GetOpenDialogFileName();
             if (fileName == "")
             {
                 excelValueList.Clear();
-                return fileName;
+                return excelValueList;
             }
             var handle = _lopen(fileName, OfReadwrite | OfShareDenyNone);
             if (handle == FileError)
@@ -74,12 +76,13 @@ namespace LotterySoftware.Model
                     excelValueList.Add(drawer);
                 }
             }
-            return fileName;
+            return excelValueList;
         }
 
         public static void ExportExcelList(ObservableCollection<Drawer> listBoxDrawer)
         {
-            var fileName = MainViewModel.SaveFileDialog();
+            var mainViewModel = new MainViewModel();
+            var fileName = mainViewModel.GetSaveDialogFileName();
             if (fileName != "")
             {
                 var app = new Application

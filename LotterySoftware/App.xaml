@@ -12,6 +12,9 @@
                 xmlns:vm="clr-namespace:LotterySoftware.ViewModel"
                 x:Key="Locator"
                 d:IsDataSource="True" />
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Resources.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

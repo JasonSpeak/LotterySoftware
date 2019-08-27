@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Threading;
-using System.Xml;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using LotterySoftware.Model;
@@ -13,30 +12,27 @@ namespace LotterySoftware.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private int _currentAwardIndex;
-        private DispatcherTimer _timer;
+        private readonly DispatcherTimer _timer;
         private List<Drawer> _drawersImport;
-        private ObservableCollection<Drawer> _resultWinner;
+        private readonly ObservableCollection<Drawer> _resultWinner;
 
-        private bool _isImport;
         private bool _isExport;
         private bool _isLottery;
+        private bool _isShowSlider;
         private bool _isStartOrPause;
-        private string _lotteryName;
-        private string _colorSlider;
+        private bool _isDisplayRecoveryButton;
         private string _currentAwardName;
-        private string _showMaxButton;
-        private string _showNormalButton;
+        private List<Awards> _showAwardsList;
         private ObservableCollection<Drawer> _showDrawerList;
-        private ObservableCollection<Awards> _showAwardsList;
-        
-        private RelayCommand _closeWindowCmd;
-        private RelayCommand _minWindowCmd;
-        private RelayCommand _maxWindowCmd;
-        private RelayCommand _recoveryWindowCmd;
-        private RelayCommand _moveWindowCmd;
-        private RelayCommand _importCmd;
-        private RelayCommand _exportCmd;
-        private RelayCommand _lotteryButtonCmd;
+
+        public RelayCommand ImportCmd => new RelayCommand(Import);
+        public RelayCommand ExportCmd => new RelayCommand(Export);
+        public RelayCommand MinWindowCmd => new RelayCommand(MinWindow);
+        public RelayCommand MaxWindowCmd => new RelayCommand(MaxWindow);
+        public RelayCommand MoveWindowCmd => new RelayCommand(MoveWindow);
+        public RelayCommand CloseWindowCmd => new RelayCommand(CloseWindow);
+        public RelayCommand RecoveryWindowCmd => new RelayCommand(RecoveryWindow);
+        public RelayCommand LotteryButtonCmd => new RelayCommand(LotteryFunction);
 
         public bool IsLottery
         {
@@ -45,6 +41,16 @@ namespace LotterySoftware.ViewModel
             {
                 _isLottery = value;
                 RaisePropertyChanged(()=>IsLottery);
+            }
+        }
+
+        public bool IsShowSlider
+        {
+            get => _isShowSlider;
+            set
+            {
+                _isShowSlider = value;
+                RaisePropertyChanged(()=>IsShowSlider);
             }
         }
 
@@ -58,13 +64,13 @@ namespace LotterySoftware.ViewModel
             }
         }
 
-        public bool IsImport
+        public bool IsDisplayRecoveryButton
         {
-            get => _isImport;
+            get => _isDisplayRecoveryButton;
             set
             {
-                _isImport = value;
-                RaisePropertyChanged(()=>IsImport);
+                _isDisplayRecoveryButton = value;
+                RaisePropertyChanged(()=>IsDisplayRecoveryButton);
             }
         }
 
@@ -78,26 +84,6 @@ namespace LotterySoftware.ViewModel
             }
         }
 
-        public string ShowMaxButton
-        {
-            get => _showMaxButton;
-            set
-            {
-                _showMaxButton = value;
-                RaisePropertyChanged(() => ShowMaxButton);
-            }
-        }
-
-        public string LotteryName
-        {
-            get => _lotteryName;
-            set
-            {
-                _lotteryName = value;
-                RaisePropertyChanged(()=>LotteryName);
-            }
-        }
-
         public string CurrentAwardName
         {
             get => _currentAwardName;
@@ -108,23 +94,13 @@ namespace LotterySoftware.ViewModel
             }
         }
 
-        public string ColorSlider
+        public List<Awards> ShowAwardsList
         {
-            get => _colorSlider;
+            get => _showAwardsList;
             set
             {
-                _colorSlider = value;
-                RaisePropertyChanged(()=> ColorSlider);
-            }
-        }
-
-        public string ShowNormalButton
-        {
-            get => _showNormalButton;
-            set
-            {
-                _showNormalButton = value;
-                RaisePropertyChanged(() => ShowNormalButton);
+                _showAwardsList = value;
+                RaisePropertyChanged(() => ShowAwardsList);
             }
         }
 
@@ -138,47 +114,70 @@ namespace LotterySoftware.ViewModel
             }
         }
 
-        public ObservableCollection<Awards> ShowAwardsList
-        {
-            get => _showAwardsList;
-            set
-            {
-                _showAwardsList = value;
-                RaisePropertyChanged(()=>ShowAwardsList);
-            }
-        }
-
-        public RelayCommand ExportCmd => _exportCmd ?? (_exportCmd = new RelayCommand(Export));
-        public RelayCommand CloseWindowCmd => _closeWindowCmd ?? (_closeWindowCmd = new RelayCommand(CloseWindow));
-        public RelayCommand MinWindowCmd => _minWindowCmd ?? (_minWindowCmd = new RelayCommand(MinWindow));
-        public RelayCommand MaxWindowCmd => _maxWindowCmd ?? (_maxWindowCmd = new RelayCommand(MaxWindow));
-        public RelayCommand RecoveryWindowCmd => _recoveryWindowCmd ?? (_recoveryWindowCmd = new RelayCommand(RecoveryWindow));
-        public RelayCommand MoveWindowCmd => _moveWindowCmd ?? (_moveWindowCmd = new RelayCommand(MoveWindow));
-        public RelayCommand ImportCmd => _importCmd ?? (_importCmd = new RelayCommand(Import));
-        public RelayCommand LotteryButtonCmd => _lotteryButtonCmd ?? (_lotteryButtonCmd = new RelayCommand(LotteryButton));
-
         public MainViewModel()
-        {
-            Init();
-            InitializationXml();
-        }
-
-        private void Init()
         {
             _timer = new DispatcherTimer();
             _timer.Tick += OnRefreshClockTimeUp;
             _timer.Interval = new TimeSpan(0, 0, 0, 0, 90);
-            IsImport = true;
-            IsExport = false;
-            IsLottery = false;
-            ColorSlider = "#4e4e4e";
-            ShowMaxButton = "Visible";
-            ShowNormalButton = "Collapsed";
-            LotteryName = "抽奖";
-            _resultWinner = new ObservableCollection<Drawer>();
-            IsStartOrPause = true;
             _drawersImport = new List<Drawer>();
+            _resultWinner = new ObservableCollection<Drawer>();
             ShowDrawerList = new ObservableCollection<Drawer>();
+
+            InitXml();
+        }
+
+        private static void MoveWindow()
+        {
+            if (Application.Current.MainWindow != null) Application.Current.MainWindow.DragMove();
+        }
+
+        private static void MinWindow()
+        {
+            if (Application.Current.MainWindow != null)
+                Application.Current.MainWindow.WindowState = WindowState.Minimized;
+        }
+
+        private static void CloseWindow()
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void RecoveryWindow()
+        {
+            if (Application.Current.MainWindow != null)
+                Application.Current.MainWindow.WindowState = WindowState.Normal;
+            IsDisplayRecoveryButton = false;
+        }
+
+        private void MaxWindow()
+        {
+            if (Application.Current.MainWindow != null)
+                Application.Current.MainWindow.WindowState = WindowState.Maximized;
+            IsDisplayRecoveryButton = true;
+        }
+
+        private void LotteryFunction()
+        {
+            if (IsLottery != true) return;
+            if (!IsStartOrPause)
+            {
+                _timer.Start();
+                ShowAwardsList[_currentAwardIndex].IsBulgeDisplay = true;
+                IsStartOrPause = true;
+                CurrentAwardName = System.Text.RegularExpressions.Regex.Replace(ShowAwardsList[_currentAwardIndex].AwardsName, " ··· ", "");
+            }
+            else
+            {
+                _timer.Stop();
+                WinningResult();
+                IsExport = true;
+                _currentAwardIndex += 1;
+                if (_currentAwardIndex == ShowAwardsList.Count)
+                {
+                    IsLottery = false;
+                }
+                IsStartOrPause = false;
+            }
         }
 
         private void OnRefreshClockTimeUp(object sender, EventArgs e)
@@ -186,14 +185,12 @@ namespace LotterySoftware.ViewModel
             ShowDrawerList.Clear();
             if (ShowAwardsList[_currentAwardIndex].AwardsNumber > _drawersImport.Count)
             {
-                var k = 1;
-                foreach (var t in _drawersImport)
+                for (var i=0;i<_drawersImport.Count;i++)
                 {
-                    var drawer = new Drawer(t.DrawCode, t.DrawName) {Id = k};
-                    k++;
+                    var drawer = new Drawer(_drawersImport[i].DrawCode, _drawersImport[i].DrawName) {Id = i+1};
                     ShowDrawerList.Add(drawer);
-                    IsLottery = false;
                 }
+                IsLottery = false;
                 return;
             }
             var indexList = new List<int>();
@@ -211,8 +208,7 @@ namespace LotterySoftware.ViewModel
                 var drawer = new Drawer(_drawersImport[index].DrawCode, _drawersImport[index].DrawName) {Id = i + 1};
                 ShowDrawerList.Add(drawer);
             }
-
-            ColorSlider = ShowDrawerList.Count > 10 ? "" : "#4e4e4e";
+            IsShowSlider = ShowDrawerList.Count > 10;
         }
 
         private void WinningResult()
@@ -241,36 +237,7 @@ namespace LotterySoftware.ViewModel
                 IsLottery = false;
                 IsExport = true;
             }
-            ColorSlider = ShowDrawerList.Count > 10 ? "" : "#4e4e4e";
-        }
-
-        private void LotteryButton()
-        {
-            if (IsLottery != true) return;
-            SetAwardsVisibilityVisible();
-            if (IsStartOrPause)
-            {
-                _timer.Start();
-                ShowAwardsList[_currentAwardIndex].AwardsColor = "#000000";
-                LotteryName = "结束";
-                IsImport = false;
-                IsStartOrPause = false;
-                CurrentAwardName = System.Text.RegularExpressions.Regex.Replace(ShowAwardsList[_currentAwardIndex].AwardsName, " ··· ", "");
-            }
-            else
-            {
-                _timer.Stop();
-                WinningResult();
-                IsExport = true;
-                IsImport = true;
-                _currentAwardIndex += 1;
-                if (_currentAwardIndex == ShowAwardsList.Count)
-                {
-                    IsLottery = false;
-                }
-                LotteryName = "抽奖";
-                IsStartOrPause = true;
-            }
+            IsShowSlider = ShowDrawerList.Count > 10;
         }
 
         private void Import()
@@ -280,15 +247,14 @@ namespace LotterySoftware.ViewModel
                 if (MessageBox.Show("是否清空中奖名单并导入文件？", "警告", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                 {
                     IsExport = false;
+                    IsLottery = false;
                     ShowDrawerList.Clear();
                     _resultWinner.Clear();
-                    SetAwardsVisibilityCollapsed();
                     _currentAwardIndex = 0;
-                    SetAwardsVisibilityCollapsed();
-                    CurrentAwardName = "";
+                    CurrentAwardName = null;
                     for (var i = 0; i < _showAwardsList.Count; i++)
                     {
-                        ShowAwardsList[i].AwardsColor = "#b5b5b5";
+                        ShowAwardsList[i].IsBulgeDisplay = false;
                     }
                 }
                 else
@@ -296,125 +262,49 @@ namespace LotterySoftware.ViewModel
                     return;
                 }
             }
-            var fileName = ExcelAndXmlHandle.GetDrawers(_drawersImport);
-            if (fileName == "") return;
+            _drawersImport = ExcelHandle.GetDrawers();
+            if (_drawersImport.Count == 0) return;
             {
                 ShowDrawerList.Clear();
                 IsExport = false;
                 _currentAwardIndex = 0;
-                SetAwardsVisibilityCollapsed();
-                CurrentAwardName = "";
+                CurrentAwardName = null;
                 for (var i = 0; i < _showAwardsList.Count; i++)
                 {
-                    ShowAwardsList[i].AwardsColor = "#b5b5b5";
+                    ShowAwardsList[i].IsBulgeDisplay = false;
                 }
                 foreach (var t in _drawersImport)
                 {
                     ShowDrawerList.Add(t);
                 }
                 if (ShowDrawerList.Count == 0) return;
-                SetAwardsVisibilityCollapsed();
                 IsLottery = true;
             }
-            ColorSlider = ShowDrawerList.Count > 10 ? "" : "#4e4e4e";
+            IsShowSlider = ShowDrawerList.Count >= 10;
         }
 
         private void Export()
         {
-            ExcelAndXmlHandle.ExportExcelList(_resultWinner);
+            ExcelHandle.ExportExcelList(_resultWinner);
         }
 
-        private static void MoveWindow()
-        {
-            if (Application.Current.MainWindow != null) Application.Current.MainWindow.DragMove();
-        }
-
-        private void RecoveryWindow()
-        {
-            if (Application.Current.MainWindow != null)
-                Application.Current.MainWindow.WindowState = WindowState.Normal;
-            ShowMaxButton = "Visible";
-            ShowNormalButton = "Collapsed";
-        }
-
-        private void MaxWindow()
-        {
-            if (Application.Current.MainWindow != null)
-                Application.Current.MainWindow.WindowState = WindowState.Maximized;
-            ShowMaxButton = "Collapsed";
-            ShowNormalButton = "Visible";
-        }
-
-        private static void MinWindow()
-        {
-            if (Application.Current.MainWindow != null)
-                Application.Current.MainWindow.WindowState = WindowState.Minimized;
-        }
-
-        private static void CloseWindow()
-        {
-            Application.Current.Shutdown();
-        }
-
-        private void InitializationXml()
+        private void InitXml()
         {
             _currentAwardIndex = 0;
-            var xmlDoc = new XmlDocument();
-            ShowAwardsList = new ObservableCollection<Awards>();
-            xmlDoc.Load("config.xml");
-            var nameList = xmlDoc.GetElementsByTagName("Name");
-            var priceList = xmlDoc.GetElementsByTagName("Prize");
-            var numberList = xmlDoc.GetElementsByTagName("Number");
-            const string point = " ··· ";
-            for (var i = 0; i < nameList.Count; i++)
-            {
-                if (nameList[i].InnerText == "") continue;
-                var award = new Awards
-                {
-                    AwardsPrize = priceList[i].InnerText,
-                    AwardsNumber = int.Parse(numberList[i].InnerText),
-                    AwardsColor = "#b5b5b5",
-                    VisibilityAwards = "Visible"
-            };
-                if (i < nameList.Count - 1)
-                {
-                    award.AwardsName = nameList[i].InnerText + point;
-                }
-                else
-                {
-                    award.AwardsName = nameList[i].InnerText;
-                }
-                ShowAwardsList.Add(award);
-            }
+            ShowAwardsList = XmlHandle.InitializationXml();
         }
 
-        private void SetAwardsVisibilityCollapsed()
-        {
-            foreach (var t in ShowAwardsList)
-            {
-                t.VisibilityAwards = "Collapsed";
-            }
-        }
-
-        private void SetAwardsVisibilityVisible()
-        {
-            foreach (var t in ShowAwardsList)
-            {
-                t.VisibilityAwards = "Visible";
-            }
-        }
-
-        public static string OpenFileDialog()
+        public string GetOpenDialogFileName()
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog()
             {
-            Filter = "Excel Files(*.xlsx)|*.xlsx"
+                Filter = "Excel Files(*.xlsx)|*.xlsx"
             };
             openFileDialog.ShowDialog();
             return openFileDialog.FileName;
         }
 
-        public static string SaveFileDialog()
+        public string GetSaveDialogFileName()
         {
             var saveFileDialog = new Microsoft.Win32.SaveFileDialog()
             {

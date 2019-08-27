@@ -4,9 +4,9 @@ namespace LotterySoftware.Model
 {
     public class Drawer : ObservableObject
     {
+        private int _id;
         private string _awardName;
         private string _awardPrize;
-        private int _id;
 
         public string DrawCode { get; }
         public string DrawName { get; }

@@ -102,9 +102,14 @@
     </ApplicationDefinition>
     <Compile Include="Model\Awards.cs" />
     <Compile Include="Model\Drawer.cs" />
-    <Compile Include="Model\ExcelAndXmlHandle.cs" />
+    <Compile Include="Model\ExcelHandle.cs" />
+    <Compile Include="Model\XmlHandle.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="Resources\Resources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
