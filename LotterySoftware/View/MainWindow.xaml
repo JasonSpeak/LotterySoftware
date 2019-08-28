@@ -6,335 +6,271 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="LotterySoftware"
-    Width="800"
-    Height="600"
-    MinWidth="800"
-    MinHeight="600"
-    AllowsTransparency="True"
     DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
-    Icon="../Images/Lottery.png"
+    Style="{StaticResource WindowChromeStyle}"
     WindowStartupLocation="CenterScreen"
-    WindowStyle="None"
     mc:Ignorable="d">
-    <Window.Style>
-        <Style TargetType="Window">
-            <Setter Property="ResizeMode" Value="CanResize" />
-            <Setter Property="WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <WindowChrome CaptionHeight="0" ResizeBorderThickness="5" />
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Style>
 
     <Window.InputBindings>
-        <KeyBinding Key="Space" Command="{Binding LotteryButtonCmd}" />
+        <KeyBinding Key="Space" Command="{Binding LotteryButtonCommand}" />
     </Window.InputBindings>
 
     <Viewbox Stretch="Fill">
-        <Border
-            BorderBrush="#3448a1"
-            BorderThickness="2"
-            CornerRadius="4"
-            SnapsToDevicePixels="True">
+        <Grid Background="#f1f1f1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48" />
+                <RowDefinition Height="47" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="400" />
+                <RowDefinition Height="57" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="683" />
+                <ColumnDefinition Width="53" />
+            </Grid.ColumnDefinitions>
 
-            <Border.Effect>
-                <DropShadowEffect
-                    BlurRadius="10"
-                    Direction="0"
-                    ShadowDepth="0" />
-            </Border.Effect>
-
-            <Grid Background="#f1f1f1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="48" />
-                    <RowDefinition Height="47" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="400" />
-                    <RowDefinition Height="57" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60" />
-                    <ColumnDefinition Width="683" />
-                    <ColumnDefinition Width="52" />
-                </Grid.ColumnDefinitions>
-
-                <Canvas
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="3"
-                    Background="#3448a1">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding MoveWindowCmd}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </Canvas>
-
+            <StackPanel
+                Grid.Row="0"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Background="#3448a1"
+                Orientation="Horizontal">
                 <Button
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="3"
                     Width="15"
                     Height="4"
-                    Margin="0,20,65,24"
-                    Content="{DynamicResource MinBtn}"
-                    Style="{StaticResource MinButton}"
-                    ToolTip="最小化">
+                    Margin="716,20,0,24"
+                    Style="{StaticResource MinButtonStyle}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
-                            <i:InvokeCommandAction Command="{Binding MinWindowCmd}" />
+                            <i:InvokeCommandAction Command="{Binding MinWindowCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
 
                 <Button
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="3"
                     Width="12"
                     Height="12"
-                    Margin="0,16,42,20"
-                    Content="{StaticResource MaxBtn}"
-                    Style="{StaticResource MaxButton}">
+                    Margin="11,16,0,20"
+                    Style="{StaticResource MaxButtonStyle}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
-                            <i:InvokeCommandAction Command="{Binding MaxWindowCmd}" />
+                            <i:InvokeCommandAction Command="{Binding MaxWindowCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
 
                 <Button
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="3"
                     Width="12"
                     Height="12"
-                    Margin="0,16,42,20"
-                    Content="{StaticResource RecoveryBtn}"
-                    Style="{StaticResource RecoveryButton}">
+                    Margin="-12,16,0,20"
+                    Style="{StaticResource RecoveryButtonStyle}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
-                            <i:InvokeCommandAction Command="{Binding RecoveryWindowCmd}" />
+                            <i:InvokeCommandAction Command="{Binding RecoveryWindowCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
 
                 <Button
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="3"
                     Width="12"
                     Height="12"
-                    Margin="0,16,18,20"
-                    Command="{Binding CloseWindowCmd}"
-                    Content="{StaticResource CloseBtn}"
-                    Style="{StaticResource CloseButton}" />
+                    Margin="12,16,0,20"
+                    Command="{Binding CloseWindowCommand}"
+                    Style="{StaticResource CloseButtonStyle}" />
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding MoveWindowAction}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </StackPanel>
 
-                <ListBox
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    Width="300"
-                    HorizontalAlignment="Left"
-                    Background="#f1f1f1"
-                    BorderThickness="0"
-                    ItemsSource="{Binding ShowAwardsList}">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Style="{StaticResource AwardsColorStyle}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+            <ListBox
+                Grid.Row="1"
+                Grid.Column="1"
+                Width="300"
+                Height="40"
+                HorizontalAlignment="Left"
+                Background="#f1f1f1"
+                BorderThickness="0"
+                ItemsSource="{Binding ShowAwardsList}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource AwardsNameStyle}" />
+                            <TextBlock Style="{StaticResource AwardsNameIntervalStyle}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
+            <TextBlock
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="0,13,0,10"
+                HorizontalAlignment="Center"
+                FontFamily="MicrosoftYaHei"
+                FontSize="20"
+                FontWeight="Bold"
+                Foreground="#000000"
+                Text="{Binding CurrentAwardName}" />
+
+            <StackPanel
+                Grid.Row="2"
+                Grid.Column="1"
+                Background="#4e4e4e"
+                Orientation="Horizontal">
                 <TextBlock
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    Margin="0,13,0,10"
-                    HorizontalAlignment="Center"
-                    FontFamily="Microsoft YaHei"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    Foreground="#000000"
-                    Text="{Binding CurrentAwardName}" />
+                    Width="29"
+                    Margin="35,13,0,8"
+                    FontFamily="MicrosoftYaHei"
+                    FontSize="14"
+                    FontStretch="Normal"
+                    FontWeight="Normal"
+                    Foreground="#f1f1f1"
+                    Text="序号" />
+                <TextBlock
+                    Width="30"
+                    Margin="85,13,0,8"
+                    FontFamily="MicrosoftYaHei"
+                    FontSize="15"
+                    Foreground="#f1f1f1"
+                    Text="姓名" />
+                <TextBlock
+                    Width="46"
+                    Margin="144,13,0,8"
+                    FontFamily="MicrosoftYaHei"
+                    FontSize="15"
+                    Foreground="#f1f1f1"
+                    Text="身份证" />
+            </StackPanel>
 
-                <StackPanel
-                    Grid.Row="2"
-                    Grid.Column="1"
-                    Background="#4e4e4e"
-                    Orientation="Horizontal">
-                    <TextBlock
-                        Width="29"
-                        Margin="35,13,0,8"
-                        FontFamily="Microsoft YaHei"
-                        FontSize="14"
-                        FontStretch="Normal"
-                        FontWeight="Normal"
-                        Foreground="#f1f1f1"
-                        Text="序号" />
-                    <TextBlock
-                        Width="30"
-                        Margin="85,13,0,8"
-                        FontFamily="Microsoft YaHei"
-                        FontSize="15"
-                        Foreground="#f1f1f1"
-                        Text="姓名" />
-                    <TextBlock
-                        Width="46"
-                        Margin="144,13,0,8"
-                        FontFamily="Microsoft YaHei"
-                        FontSize="15"
-                        Foreground="#f1f1f1"
-                        Text="身份证" />
-                </StackPanel>
+            <Border
+                Grid.Row="3"
+                Grid.Column="1"
+                Background="#f1f1f1"
+                BorderBrush="#4e4e4e"
+                BorderThickness="2"
+                Opacity="0.3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="39" />
+                        <RowDefinition Height="39" />
+                        <RowDefinition Height="39" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="39" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="39" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="662" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Background="#4e4e4e" />
+                    <Grid
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Background="#4e4e4e" />
+                    <Grid
+                        Grid.Row="5"
+                        Grid.Column="0"
+                        Background="#4e4e4e" />
+                    <Grid
+                        Grid.Row="7"
+                        Grid.Column="0"
+                        Background="#4e4e4e" />
+                    <Grid
+                        Grid.Row="9"
+                        Grid.Column="0"
+                        Background="#4e4e4e" />
 
-                <Border
-                    Grid.Row="3"
-                    Grid.Column="1"
-                    Background="#f1f1f1"
-                    BorderBrush="#4e4e4e"
-                    BorderThickness="2"
-                    Opacity="0.3">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="39" />
-                            <RowDefinition Height="39" />
-                            <RowDefinition Height="39" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="39" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="39" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="661" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid
-                            Grid.Row="1"
-                            Grid.Column="0"
-                            Background="#4e4e4e" />
-                        <Grid
-                            Grid.Row="3"
-                            Grid.Column="0"
-                            Background="#4e4e4e" />
-                        <Grid
-                            Grid.Row="5"
-                            Grid.Column="0"
-                            Background="#4e4e4e" />
-                        <Grid
-                            Grid.Row="7"
-                            Grid.Column="0"
-                            Background="#4e4e4e" />
-                        <Grid
-                            Grid.Row="9"
-                            Grid.Column="0"
-                            Background="#4e4e4e" />
+                    <Grid
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Style="{StaticResource ListBoxBackgroundStyle}" />
+                    <Grid
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Style="{StaticResource ListBoxBackgroundStyle}" />
+                    <Grid
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Style="{StaticResource ListBoxBackgroundStyle}" />
+                    <Grid
+                        Grid.Row="7"
+                        Grid.Column="1"
+                        Style="{StaticResource ListBoxBackgroundStyle}" />
+                    <Grid
+                        Grid.Row="9"
+                        Grid.Column="1"
+                        Style="{StaticResource ListBoxBackgroundStyle}" />
+                </Grid>
+            </Border>
 
-                        <Grid
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            Style="{StaticResource SliderBackground}" />
-                        <Grid
-                            Grid.Row="3"
-                            Grid.Column="1"
-                            Style="{StaticResource SliderBackground}" />
-                        <Grid
-                            Grid.Row="5"
-                            Grid.Column="1"
-                            Style="{StaticResource SliderBackground}" />
-                        <Grid
-                            Grid.Row="7"
-                            Grid.Column="1"
-                            Style="{StaticResource SliderBackground}" />
-                        <Grid
-                            Grid.Row="9"
-                            Grid.Column="1"
-                            Style="{StaticResource SliderBackground}" />
-                    </Grid>
-                </Border>
+            <ListBox
+                Grid.Row="3"
+                Grid.Column="1"
+                Background="#DCDCDC"
+                BorderBrush="#4e4e4e"
+                BorderThickness="2"
+                ItemsSource="{Binding ShowDrawerList, Mode=TwoWay}"
+                Opacity="0.7">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Height="39" Orientation="Horizontal">
+                            <TextBlock
+                                Width="20"
+                                Margin="36,12,0,12"
+                                FontFamily="MicrosoftYaHei"
+                                FontSize="14"
+                                Foreground="#1C1C1C"
+                                Text="{Binding Id}" />
+                            <TextBlock
+                                Width="60"
+                                Margin="86,11,0,11"
+                                FontFamily="MicrosoftYaHei"
+                                FontSize="14"
+                                Foreground="#1C1C1C"
+                                Text="{Binding DrawName}" />
+                            <TextBlock
+                                Margin="116,12,0,12"
+                                FontFamily="MicrosoftYaHei"
+                                FontSize="14"
+                                Foreground="#1C1C1C"
+                                Text="{Binding DrawCode}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
-                <ListBox
-                    Grid.Row="3"
-                    Grid.Column="1"
-                    Background="#DCDCDC"
-                    BorderBrush="#4e4e4e"
-                    BorderThickness="2"
-                    ItemsSource="{Binding ShowDrawerList, Mode=TwoWay}"
-                    Opacity="0.7">
-                    <ListBox.Resources>
-                        <Style TargetType="ScrollBar">
-                            <Setter Property="Foreground"  Value="Red"></Setter>
-                        </Style>
-                    </ListBox.Resources>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Height="39" Orientation="Horizontal">
-                                <TextBlock
-                                    Width="20"
-                                    Margin="36,12,0,12"
-                                    FontFamily="Microsoft YaHei"
-                                    FontSize="14"
-                                    Foreground="#1C1C1C"
-                                    Text="{Binding Id}" />
-                                <TextBlock
-                                    Width="60"
-                                    Margin="86,11,0,11"
-                                    FontFamily="Microsoft YaHei"
-                                    FontSize="14"
-                                    Foreground="#1C1C1C"
-                                    Text="{Binding DrawName}" />
-                                <TextBlock
-                                    Margin="116,12,0,12"
-                                    FontFamily="Microsoft YaHei"
-                                    FontSize="14"
-                                    Foreground="#1C1C1C"
-                                    Text="{Binding DrawCode}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    
-                </ListBox>
+            <Button
+                Grid.Row="4"
+                Grid.Column="1"
+                Command="{Binding LotteryButtonCommand}"
+                Style="{StaticResource LotteryButtonStyle}" />
 
-                <Button
-                    Grid.Row="4"
-                    Grid.Column="1"
-                    Width="80"
-                    Height="30"
-                    HorizontalAlignment="Center"
-                    Command="{Binding LotteryButtonCmd}"
-                    FontSize="16"
-                    IsEnabled="{Binding IsLottery}"
-                    Style="{StaticResource ButtonBackground}" />
+            <Button
+                Grid.Row="4"
+                Grid.Column="1"
+                Command="{Binding ImportCommand}"
+                Style="{StaticResource ImportButtonStyle}" />
 
-                <Button
-                    Grid.Row="4"
-                    Grid.Column="1"
-                    Width="60"
-                    Height="24"
-                    Margin="0,20,70,10"
-                    Command="{Binding ImportCmd}"
-                    Content="导入"
-                    IsEnabled="True"
-                    Style="{StaticResource ButtonBackground}" />
-
-                <Button
-                    Grid.Row="4"
-                    Grid.Column="1"
-                    Width="60"
-                    Height="24"
-                    Margin="0,20,0,10"
-                    Content="导出"
-                    Command="{Binding ExportCmd}"
-                    IsEnabled="{Binding IsExport}"
-                    Style="{StaticResource ButtonBackground}" />
-            </Grid>
-        </Border>
+            <Button
+                Grid.Row="4"
+                Grid.Column="1"
+                Command="{Binding ExportCommand}"
+                Style="{StaticResource ExportButtonStyle}" />
+        </Grid>
     </Viewbox>
 </Window>

@@ -5,7 +5,7 @@ namespace LotterySoftware.Model
 {
     public class XmlHandle
     {
-        public static List<Awards> InitializationXml()
+        public static List<Awards> GetAwards()
         {
             var xmlDoc = new XmlDocument();
             var awardsList = new List<Awards>();
@@ -13,22 +13,21 @@ namespace LotterySoftware.Model
             var nameList = xmlDoc.GetElementsByTagName("Name");
             var priceList = xmlDoc.GetElementsByTagName("Prize");
             var numberList = xmlDoc.GetElementsByTagName("Number");
-            const string point = " ··· ";
             for (var i = 0; i < numberList.Count; i++)
             {
-                if (nameList[i].InnerText == "") continue;
                 var award = new Awards
                 {
+                    AwardsName = nameList[i].InnerText,
                     AwardsPrize = priceList[i].InnerText,
-                    AwardsNumber = int.Parse(numberList[i].InnerText),
+                    IsLastAward = false
                 };
-                if (i < nameList.Count - 1)
+                if (int.TryParse(numberList[i].InnerText, out var number))
                 {
-                    award.AwardsName = nameList[i].InnerText + point;
+                    award.AwardsNumber = number;
                 }
-                else
+                if (i == numberList.Count - 1)
                 {
-                    award.AwardsName = nameList[i].InnerText;
+                    award.IsLastAward = true;
                 }
                 awardsList.Add(award);
             }

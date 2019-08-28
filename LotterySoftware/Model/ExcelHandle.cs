@@ -21,19 +21,7 @@ namespace LotterySoftware.Model
         private static extern bool CloseHandle(IntPtr hObject);
         private static readonly IntPtr FileError = new IntPtr(-1);
         
-        private static string GetValue(CellType cell, SharedStringTablePart stringTablePart)
-        {
-            if (cell.ChildElements.Count == 0)
-            {
-                return null;
-            }
-            var value = cell.CellValue.InnerText;
-            if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
-            {
-                value = stringTablePart.SharedStringTable.ChildElements[int.Parse(value)].InnerText;
-            }
-            return value;
-        }
+        
 
         public static List<Drawer> GetDrawers()
         {
@@ -123,6 +111,20 @@ namespace LotterySoftware.Model
             }
             GC.Collect();
             GC.WaitForPendingFinalizers();
+        }
+
+        private static string GetValue(CellType cell, SharedStringTablePart stringTablePart)
+        {
+            if (cell.ChildElements.Count == 0)
+            {
+                return null;
+            }
+            var value = cell.CellValue.InnerText;
+            if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
+            {
+                value = stringTablePart.SharedStringTable.ChildElements[int.Parse(value)].InnerText;
+            }
+            return value;
         }
     }
 }

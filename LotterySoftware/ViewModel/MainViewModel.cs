@@ -16,41 +16,51 @@ namespace LotterySoftware.ViewModel
         private List<Drawer> _drawersImport;
         private readonly ObservableCollection<Drawer> _resultWinner;
 
-        private bool _isExport;
-        private bool _isLottery;
-        private bool _isShowSlider;
+        private bool _canImport;
+        private bool _canExport;
+        private bool _canLottery;
+        private bool _isDrawerPassOnePage;
         private bool _isStartOrPause;
-        private bool _isDisplayRecoveryButton;
+        private bool _isMaxOrRecoveryButton;
         private string _currentAwardName;
         private List<Awards> _showAwardsList;
         private ObservableCollection<Drawer> _showDrawerList;
 
-        public RelayCommand ImportCmd => new RelayCommand(Import);
-        public RelayCommand ExportCmd => new RelayCommand(Export);
-        public RelayCommand MinWindowCmd => new RelayCommand(MinWindow);
-        public RelayCommand MaxWindowCmd => new RelayCommand(MaxWindow);
-        public RelayCommand MoveWindowCmd => new RelayCommand(MoveWindow);
-        public RelayCommand CloseWindowCmd => new RelayCommand(CloseWindow);
-        public RelayCommand RecoveryWindowCmd => new RelayCommand(RecoveryWindow);
-        public RelayCommand LotteryButtonCmd => new RelayCommand(LotteryFunction);
-
-        public bool IsLottery
+        public bool CanImport
         {
-            get => _isLottery;
+            get => _canImport;
             set
             {
-                _isLottery = value;
-                RaisePropertyChanged(()=>IsLottery);
+                _canImport = value;
+                RaisePropertyChanged(()=>CanImport);
+            }
+        }
+        public bool CanExport
+        {
+            get => _canExport;
+            set
+            {
+                _canExport = value;
+                RaisePropertyChanged(() => CanExport);
+            }
+        }
+        public bool CanLottery
+        {
+            get => _canLottery;
+            set
+            {
+                _canLottery = value;
+                RaisePropertyChanged(()=>CanLottery);
             }
         }
 
-        public bool IsShowSlider
+        public bool IsDrawerPassOnePage
         {
-            get => _isShowSlider;
+            get => _isDrawerPassOnePage;
             set
             {
-                _isShowSlider = value;
-                RaisePropertyChanged(()=>IsShowSlider);
+                _isDrawerPassOnePage = value;
+                RaisePropertyChanged(()=>IsDrawerPassOnePage);
             }
         }
 
@@ -64,23 +74,13 @@ namespace LotterySoftware.ViewModel
             }
         }
 
-        public bool IsDisplayRecoveryButton
+        public bool IsMaxOrRecoveryButton
         {
-            get => _isDisplayRecoveryButton;
+            get => _isMaxOrRecoveryButton;
             set
             {
-                _isDisplayRecoveryButton = value;
-                RaisePropertyChanged(()=>IsDisplayRecoveryButton);
-            }
-        }
-
-        public bool IsExport
-        {
-            get => _isExport;
-            set
-            {
-                _isExport = value;
-                RaisePropertyChanged(()=>IsExport);
+                _isMaxOrRecoveryButton = value;
+                RaisePropertyChanged(()=>IsMaxOrRecoveryButton);
             }
         }
 
@@ -114,69 +114,110 @@ namespace LotterySoftware.ViewModel
             }
         }
 
+        public RelayCommand ImportCommand { get; }
+        public RelayCommand ExportCommand { get; }
+        public RelayCommand MinWindowCommand { get; }
+        public RelayCommand MaxWindowCommand { get; }
+        public RelayCommand MoveWindowAction { get; }
+        public RelayCommand CloseWindowCommand { get; }
+        public RelayCommand RecoveryWindowCommand { get; }
+        public RelayCommand LotteryButtonCommand { get; }
+
         public MainViewModel()
         {
             _timer = new DispatcherTimer();
             _timer.Tick += OnRefreshClockTimeUp;
-            _timer.Interval = new TimeSpan(0, 0, 0, 0, 90);
+            _timer.Interval = new TimeSpan(90000);
+
             _drawersImport = new List<Drawer>();
             _resultWinner = new ObservableCollection<Drawer>();
             ShowDrawerList = new ObservableCollection<Drawer>();
 
-            InitXml();
+            ImportCommand = new RelayCommand(OnImportCommandExecuted);
+            ExportCommand = new RelayCommand(OnExportCommandExecuted);
+            MinWindowCommand = new RelayCommand(OnMinWindowCommandExecuted);
+            MaxWindowCommand = new RelayCommand(OnMaxWindowCommandExecuted);
+            MoveWindowAction = new RelayCommand(OnMoveWindowActionExecuted);
+            CloseWindowCommand = new RelayCommand(OnCloseWindowCommandExecuted);
+            RecoveryWindowCommand = new RelayCommand(OnRecoveryWindowCommandExecuted);
+            LotteryButtonCommand = new RelayCommand(OnLotteryFunctionCommandExecuted);
+
+            GetAwards();
         }
 
-        private static void MoveWindow()
+        public string GetOpenDialogFileName()
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Excel Files(*.xlsx)|*.xlsx"
+            };
+            openFileDialog.ShowDialog();
+            return openFileDialog.FileName;
+        }
+
+        public string GetSaveDialogFileName()
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Excel Files(*.xlsx)|*.xlsx"
+            };
+            saveFileDialog.ShowDialog();
+            return saveFileDialog.FileName;
+        }
+
+        private static void OnMoveWindowActionExecuted()
         {
             if (Application.Current.MainWindow != null) Application.Current.MainWindow.DragMove();
         }
 
-        private static void MinWindow()
+        private static void OnMinWindowCommandExecuted()
         {
             if (Application.Current.MainWindow != null)
                 Application.Current.MainWindow.WindowState = WindowState.Minimized;
         }
 
-        private static void CloseWindow()
+        private static void OnCloseWindowCommandExecuted()
         {
             Application.Current.Shutdown();
         }
 
-        private void RecoveryWindow()
+        private void OnRecoveryWindowCommandExecuted()
         {
             if (Application.Current.MainWindow != null)
                 Application.Current.MainWindow.WindowState = WindowState.Normal;
-            IsDisplayRecoveryButton = false;
+            IsMaxOrRecoveryButton = false;
         }
 
-        private void MaxWindow()
+        private void OnMaxWindowCommandExecuted()
         {
             if (Application.Current.MainWindow != null)
                 Application.Current.MainWindow.WindowState = WindowState.Maximized;
-            IsDisplayRecoveryButton = true;
+            IsMaxOrRecoveryButton = true;
         }
 
-        private void LotteryFunction()
+        private void OnLotteryFunctionCommandExecuted()
         {
-            if (IsLottery != true) return;
+            if (CanLottery != true) return;
             if (!IsStartOrPause)
             {
                 _timer.Start();
-                ShowAwardsList[_currentAwardIndex].IsBulgeDisplay = true;
+                ShowAwardsList[_currentAwardIndex].IsAlreadyLottery = true;
                 IsStartOrPause = true;
-                CurrentAwardName = System.Text.RegularExpressions.Regex.Replace(ShowAwardsList[_currentAwardIndex].AwardsName, " ··· ", "");
+                CanImport = false;
+                CurrentAwardName = ShowAwardsList[_currentAwardIndex].AwardsName;
             }
             else
             {
                 _timer.Stop();
                 WinningResult();
-                IsExport = true;
+                CanExport = true;
                 _currentAwardIndex += 1;
                 if (_currentAwardIndex == ShowAwardsList.Count)
                 {
-                    IsLottery = false;
+                    CanLottery = false;
                 }
                 IsStartOrPause = false;
+                CanImport = true;
             }
         }
 
@@ -190,7 +231,9 @@ namespace LotterySoftware.ViewModel
                     var drawer = new Drawer(_drawersImport[i].DrawCode, _drawersImport[i].DrawName) {Id = i+1};
                     ShowDrawerList.Add(drawer);
                 }
-                IsLottery = false;
+                IsStartOrPause = true;
+                OnLotteryFunctionCommandExecuted();
+                CanLottery = false;
                 return;
             }
             var indexList = new List<int>();
@@ -208,7 +251,7 @@ namespace LotterySoftware.ViewModel
                 var drawer = new Drawer(_drawersImport[index].DrawCode, _drawersImport[index].DrawName) {Id = i + 1};
                 ShowDrawerList.Add(drawer);
             }
-            IsShowSlider = ShowDrawerList.Count > 10;
+            IsDrawerPassOnePage = ShowDrawerList.Count > 10;
         }
 
         private void WinningResult()
@@ -234,27 +277,27 @@ namespace LotterySoftware.ViewModel
                     }
                 }
                 if (_drawersImport.Count != 0) continue;
-                IsLottery = false;
-                IsExport = true;
+                CanLottery = false;
+                CanExport = true;
             }
-            IsShowSlider = ShowDrawerList.Count > 10;
+            IsDrawerPassOnePage = ShowDrawerList.Count > 10;
         }
 
-        private void Import()
+        private void OnImportCommandExecuted()
         {
             if (_resultWinner.Count !=0)
             {
                 if (MessageBox.Show("是否清空中奖名单并导入文件？", "警告", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                 {
-                    IsExport = false;
-                    IsLottery = false;
+                    CanExport = false;
+                    CanLottery = false;
                     ShowDrawerList.Clear();
                     _resultWinner.Clear();
                     _currentAwardIndex = 0;
                     CurrentAwardName = null;
                     for (var i = 0; i < _showAwardsList.Count; i++)
                     {
-                        ShowAwardsList[i].IsBulgeDisplay = false;
+                        ShowAwardsList[i].IsAlreadyLottery = false;
                     }
                 }
                 else
@@ -263,55 +306,36 @@ namespace LotterySoftware.ViewModel
                 }
             }
             _drawersImport = ExcelHandle.GetDrawers();
-            if (_drawersImport.Count == 0) return;
+            if (_drawersImport == null) return;
             {
                 ShowDrawerList.Clear();
-                IsExport = false;
+                CanExport = false;
                 _currentAwardIndex = 0;
                 CurrentAwardName = null;
                 for (var i = 0; i < _showAwardsList.Count; i++)
                 {
-                    ShowAwardsList[i].IsBulgeDisplay = false;
+                    ShowAwardsList[i].IsAlreadyLottery = false;
                 }
                 foreach (var t in _drawersImport)
                 {
                     ShowDrawerList.Add(t);
                 }
                 if (ShowDrawerList.Count == 0) return;
-                IsLottery = true;
+                CanLottery = true;
             }
-            IsShowSlider = ShowDrawerList.Count >= 10;
+            IsDrawerPassOnePage = ShowDrawerList.Count >= 10;
         }
 
-        private void Export()
+        private void OnExportCommandExecuted()
         {
             ExcelHandle.ExportExcelList(_resultWinner);
         }
 
-        private void InitXml()
+        private void GetAwards()
         {
+            CanImport = true;
             _currentAwardIndex = 0;
-            ShowAwardsList = XmlHandle.InitializationXml();
-        }
-
-        public string GetOpenDialogFileName()
-        {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Excel Files(*.xlsx)|*.xlsx"
-            };
-            openFileDialog.ShowDialog();
-            return openFileDialog.FileName;
-        }
-
-        public string GetSaveDialogFileName()
-        {
-            var saveFileDialog = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Excel Files(*.xlsx)|*.xlsx"
-            };
-            saveFileDialog.ShowDialog();
-            return saveFileDialog.FileName;
+            ShowAwardsList = XmlHandle.GetAwards();
         }
     }
 }

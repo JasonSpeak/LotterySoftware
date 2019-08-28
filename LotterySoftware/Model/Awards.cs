@@ -7,7 +7,8 @@ namespace LotterySoftware.Model
         private int _awardsNumber;
         private string _awardsName;
         private string _awardsPrize;
-        private bool _isBulgeDisplay;
+        private bool _isAlreadyLottery;
+        private bool _isLastAward;
 
         public string AwardsName
         {
@@ -39,13 +40,23 @@ namespace LotterySoftware.Model
             }
         }
 
-        public bool IsBulgeDisplay
+        public bool IsAlreadyLottery
         {
-            get => _isBulgeDisplay;
+            get => _isAlreadyLottery;
             set
             {
-                _isBulgeDisplay = value;
-                RaisePropertyChanged(()=> IsBulgeDisplay);
+                _isAlreadyLottery = value;
+                RaisePropertyChanged(()=> IsAlreadyLottery);
+            }
+        }
+
+        public bool IsLastAward
+        {
+            get => _isLastAward;
+            set
+            {
+                _isLastAward = value;
+                RaisePropertyChanged(()=>IsLastAward);
             }
         }
     }
