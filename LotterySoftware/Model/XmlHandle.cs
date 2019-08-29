@@ -7,24 +7,21 @@ namespace LotterySoftware.Model
     {
         public static List<Awards> GetAwards()
         {
-            var xmlDoc = new XmlDocument();
+            var xmlDocument = new XmlDocument();
             var awardsList = new List<Awards>();
-            xmlDoc.Load("config.xml");
-            var nameList = xmlDoc.GetElementsByTagName("Name");
-            var priceList = xmlDoc.GetElementsByTagName("Prize");
-            var numberList = xmlDoc.GetElementsByTagName("Number");
+            xmlDocument.Load("config.xml");
+            var nameList = xmlDocument.GetElementsByTagName("Name");
+            var priceList = xmlDocument.GetElementsByTagName("Prize");
+            var numberList = xmlDocument.GetElementsByTagName("Number");
             for (var i = 0; i < numberList.Count; i++)
             {
                 var award = new Awards
                 {
                     AwardsName = nameList[i].InnerText,
                     AwardsPrize = priceList[i].InnerText,
-                    IsLastAward = false
+                    IsLastAward = false,
+                    AwardsNumber = int.TryParse(numberList[i].InnerText, out var number) ? number : 0
                 };
-                if (int.TryParse(numberList[i].InnerText, out var number))
-                {
-                    award.AwardsNumber = number;
-                }
                 if (i == numberList.Count - 1)
                 {
                     award.IsLastAward = true;

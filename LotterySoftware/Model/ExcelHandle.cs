@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using LotterySoftware.ViewModel;
 using Microsoft.Office.Interop.Excel;
 using Application = Microsoft.Office.Interop.Excel.Application;
 
@@ -16,29 +15,20 @@ namespace LotterySoftware.Model
         private const int OfReadwrite = 2;
         private const int OfShareDenyNone = 0x40;
         [DllImport("kernel32.dll")]
-        private static extern IntPtr _lopen(string lpPathName, int iReadWrite);
+        private static extern IntPtr _lopen(string pathFileName, int iReadWrite);
         [DllImport("kernel32.dll")]
         private static extern bool CloseHandle(IntPtr hObject);
         private static readonly IntPtr FileError = new IntPtr(-1);
         
-        
-
-        public static List<Drawer> GetDrawers()
+        public static List<Drawer> GetDrawers(string fileName)
         {
-            var mainViewModel = new MainViewModel();
+            if (!IsFileOccupy(fileName)) return null;
             var excelValueList = new List<Drawer>();
-            var fileName = mainViewModel.GetOpenDialogFileName();
             if (fileName == "")
             {
                 excelValueList.Clear();
                 return excelValueList;
             }
-            var handle = _lopen(fileName, OfReadwrite | OfShareDenyNone);
-            if (handle == FileError)
-            {
-                return null;
-            }
-            CloseHandle(handle);
             var document = SpreadsheetDocument.Open(fileName, false);
             var sheet = document.WorkbookPart.Workbook.Descendants<Sheet>().First();
             var worksheetPart = (WorksheetPart)document.WorkbookPart.GetPartById(sheet.Id);
@@ -57,7 +47,7 @@ namespace LotterySoftware.Model
                     cellValues[i] = columnValues;
                     i++;
                 }
-                var drawer = new Drawer(cellValues[1], cellValues[0]) {Id = j+1};
+                var drawer = new Drawer(cellValues[1], cellValues[0]) { Id = j + 1 };
                 j++;
                 if (!string.IsNullOrEmpty(drawer.DrawCode))
                 {
@@ -67,10 +57,8 @@ namespace LotterySoftware.Model
             return excelValueList;
         }
 
-        public static void ExportExcelList(ObservableCollection<Drawer> listBoxDrawer)
+        public static void ExportExcelList(ObservableCollection<Drawer> listBoxDrawer,string fileName)
         {
-            var mainViewModel = new MainViewModel();
-            var fileName = mainViewModel.GetSaveDialogFileName();
             if (fileName != "")
             {
                 var app = new Application
@@ -117,14 +105,25 @@ namespace LotterySoftware.Model
         {
             if (cell.ChildElements.Count == 0)
             {
-                return null;
+                return string.Empty;
             }
             var value = cell.CellValue.InnerText;
-            if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
+            if ((cell.DataType != string.Empty) && (cell.DataType == CellValues.SharedString))
             {
                 value = stringTablePart.SharedStringTable.ChildElements[int.Parse(value)].InnerText;
             }
             return value;
+        }
+
+        private static bool IsFileOccupy(string fileName)
+        {
+            var handle = _lopen(fileName, OfReadwrite | OfShareDenyNone);
+            if (handle == FileError)
+            {
+                return false;
+            }
+            CloseHandle(handle);
+            return true;
         }
     }
 }

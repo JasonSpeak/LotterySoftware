@@ -13,7 +13,7 @@
         <Setter Property="ResizeMode" Value="CanResize" />
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
-                <WindowChrome CaptionHeight="0" ResizeBorderThickness="3" />
+                <WindowChrome CaptionHeight="0" ResizeBorderThickness="4" CornerRadius="4,4,0,0"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -25,6 +25,9 @@
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="ToolTip" Value="关闭" />
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Margin" Value="12,16,0,20" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -63,6 +66,9 @@
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="ToolTip" Value="最小化" />
+        <Setter Property="Width" Value="15" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Margin" Value="716,16,0,20" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -77,13 +83,11 @@
                             <Path
                                 Data="F1M0,1L12.001,1 12.001,0 0,0z"
                                 Fill="#FF9AA4D0"
-                                SnapsToDevicePixels="True"
                                 Stretch="Uniform"
                                 Stroke="{TemplateBinding BorderBrush}"
                                 UseLayoutRounding="True" />
                         </Grid>
                     </Border>
-
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" Value="#ffffff" />
@@ -102,6 +106,9 @@
         <Setter Property="ToolTip" Value="最大化" />
         <Setter Property="Visibility" Value="Visible" />
         <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Margin" Value="11,16,0,20" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -143,6 +150,9 @@
         <Setter Property="ToolTip" Value="向下还原" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="Visibility" Value="Hidden" />
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Margin" Value="-12,16,0,20" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -329,5 +339,128 @@
                 <Setter Property="Background" Value="#f1f1f1" />
             </DataTrigger>
         </Style.Triggers>
+    </Style>
+
+    <Style x:Key="TaskBarStyle" TargetType="StackPanel">
+        <Setter Property="Background" Value="#3448a1" />
+        <Setter Property="Orientation" Value="Horizontal" />
+    </Style>
+
+    <Style x:Key="DrawerTitleStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Background" Value="#4e4e4e" />
+        <Setter Property="Orientation" Value="Horizontal" />
+    </Style>
+
+    <Style x:Key="AwardsListBoxStyle" TargetType="ListBox">
+        <Setter Property="Width" Value="300" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Margin" Value="-4,0,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Background" Value="#f1f1f1" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource AwardsNameStyle}" />
+                        <TextBlock Style="{StaticResource AwardsNameIntervalStyle}" />
+                    </StackPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CurrentAwardsNameStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="Black" />
+    </Style>
+
+    <Style x:Key="DrawerIdStyle" TargetType="TextBlock">
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Margin" Value="36,12,0,12" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#1C1C1C" />
+        <Setter Property="Text" Value="{Binding Id}" />
+    </Style>
+
+    <Style x:Key="DrawerNameStyle" TargetType="TextBlock">
+        <Setter Property="Width" Value="60" />
+        <Setter Property="Margin" Value="86,11,0,11" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#1C1C1C" />
+        <Setter Property="Text" Value="{Binding DrawName}" />
+    </Style>
+
+    <Style x:Key="DrawerCodeStyle" TargetType="TextBlock">
+        <Setter Property="Margin" Value="116,12,0,12" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#1C1C1C" />
+        <Setter Property="Text" Value="{Binding DrawCode}" />
+    </Style>
+
+    <Style x:Key="DrawerListBoxStyle" TargetType="ListBox">
+        <Setter Property="Opacity" Value="0.7" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderBrush" Value="#4e4e4e" />
+        <Setter Property="Background" Value="#DCDCDC" />
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <StackPanel Height="39" Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource DrawerIdStyle}" />
+                        <TextBlock Style="{StaticResource DrawerNameStyle}" />
+                        <TextBlock Style="{StaticResource DrawerCodeStyle}" />
+                    </StackPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="DrawerListBoxBackgroundStyle" TargetType="Border">
+        <Setter Property="Background" Value="#f1f1f1" />
+        <Setter Property="BorderBrush" Value="#4e4e4e" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Opacity" Value="0.3" />
+    </Style>
+
+    <Style x:Key="TitleIdStyle" TargetType="TextBlock">
+        <Setter Property="Width" Value="29" />
+        <Setter Property="Margin" Value="38,13,0,8" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#f1f1f1" />
+        <Setter Property="Text" Value="序号" />
+    </Style>
+
+    <Style x:Key="TitleNameStyle" TargetType="TextBlock">
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Margin" Value="86,13,0,8" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#f1f1f1" />
+        <Setter Property="Text" Value="姓名" />
+    </Style>
+
+    <Style x:Key="TitleCodeStyle" TargetType="TextBlock">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Margin" Value="144,13,0,8" />
+        <Setter Property="FontFamily" Value="MicrosoftYaHei" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#f1f1f1" />
+        <Setter Property="Text" Value="身份证" />
     </Style>
 </ResourceDictionary>
