@@ -388,7 +388,8 @@
 
     <Style x:Key="DrawerIdStyle" TargetType="TextBlock">
         <Setter Property="Width" Value="20" />
-        <Setter Property="Margin" Value="36,12,0,12" />
+        <Setter Property="Margin" Value="36,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="MicrosoftYaHei" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="#1C1C1C" />
@@ -397,7 +398,8 @@
 
     <Style x:Key="DrawerNameStyle" TargetType="TextBlock">
         <Setter Property="Width" Value="60" />
-        <Setter Property="Margin" Value="86,11,0,11" />
+        <Setter Property="Margin" Value="86,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="MicrosoftYaHei" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="#1C1C1C" />
@@ -405,7 +407,8 @@
     </Style>
 
     <Style x:Key="DrawerCodeStyle" TargetType="TextBlock">
-        <Setter Property="Margin" Value="116,12,0,12" />
+        <Setter Property="Margin" Value="116,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="MicrosoftYaHei" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Foreground" Value="#1C1C1C" />

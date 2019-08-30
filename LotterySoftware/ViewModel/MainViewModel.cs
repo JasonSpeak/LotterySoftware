@@ -243,14 +243,11 @@ namespace LotterySoftware.ViewModel
                 }
             }
             var fileName = GetOpenDialogFileName();
-            if (fileName != "")
-            {
-                _drawersImport = ExcelHandle.GetDrawers(fileName);
-            }
-            else
+            if (fileName == "")
             {
                 return;
             }
+            _drawersImport = ExcelHandle.GetDrawers(fileName);
             if (_drawersImport == null) return;
             {
                 ShowDrawerList.Clear();
