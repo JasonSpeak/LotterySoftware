@@ -14,7 +14,7 @@ namespace LotterySoftware.ViewModel
         private int _currentAwardIndex;
         private readonly DispatcherTimer _timer;
         private List<Drawer> _drawersImport;
-        private readonly ObservableCollection<Drawer> _resultWinner;
+        private readonly ObservableCollection<Drawer> _winningDrawer;
 
         private bool _canImport;
         private bool _canExport;
@@ -119,14 +119,16 @@ namespace LotterySoftware.ViewModel
 
         public MainViewModel()
         {
-            GetAwards();
+            InitAwards();
+            CanImport = true;
+            _currentAwardIndex = 0;
 
             _timer = new DispatcherTimer();
             _timer.Tick += OnRefreshClockTimeUp;
             _timer.Interval = new TimeSpan(90000);
 
             _drawersImport = new List<Drawer>();
-            _resultWinner = new ObservableCollection<Drawer>();
+            _winningDrawer = new ObservableCollection<Drawer>();
             ShowDrawerList = new ObservableCollection<Drawer>();
 
             ImportCommand = new RelayCommand(OnImportCommandExecuted);
@@ -212,7 +214,7 @@ namespace LotterySoftware.ViewModel
                     AwardPrize = ShowAwardsList[_currentAwardIndex].AwardsPrize,
                     Id = i + 1
                 };
-                _resultWinner.Add(winners);
+                _winningDrawer.Add(winners);
                 for (var j = 0; j < _drawersImport.Count; j++)
                 {
                     if (_drawersImport[j].DrawCode == ShowDrawerList[i].DrawCode)
@@ -229,7 +231,7 @@ namespace LotterySoftware.ViewModel
 
         private void OnImportCommandExecuted()
         {
-            if (_resultWinner.Count !=0)
+            if (_winningDrawer.Count !=0)
             {
                 if (MessageBox.Show("是否清空中奖名单并导入文件？", "警告", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                 {
@@ -240,7 +242,15 @@ namespace LotterySoftware.ViewModel
                     return;
                 }
             }
-            _drawersImport = ExcelHandle.GetDrawers(GetOpenDialogFileName());
+            var fileName = GetOpenDialogFileName();
+            if (fileName != "")
+            {
+                _drawersImport = ExcelHandle.GetDrawers(fileName);
+            }
+            else
+            {
+                return;
+            }
             if (_drawersImport == null) return;
             {
                 ShowDrawerList.Clear();
@@ -263,13 +273,11 @@ namespace LotterySoftware.ViewModel
 
         private void OnExportCommandExecuted()
         {
-            ExcelHandle.ExportExcelList(_resultWinner,GetSaveDialogFileName());
+            ExcelHandle.ExportExcelList(_winningDrawer,GetSaveDialogFileName());
         }
 
-        private void GetAwards()
+        private void InitAwards()
         {
-            CanImport = true;
-            _currentAwardIndex = 0;
             ShowAwardsList = XmlHandle.GetAwards();
         }
 
@@ -278,7 +286,7 @@ namespace LotterySoftware.ViewModel
             CanExport = false;
             CanLottery = false;
             ShowDrawerList.Clear();
-            _resultWinner.Clear();
+            _winningDrawer.Clear();
             _currentAwardIndex = 0;
             CurrentAwardName = string.Empty;
             for (var i = 0; i < _showAwardsList.Count; i++)

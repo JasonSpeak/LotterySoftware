@@ -24,11 +24,6 @@ namespace LotterySoftware.Model
         {
             if (!IsFileOccupy(fileName)) return null;
             var excelValueList = new List<Drawer>();
-            if (fileName == "")
-            {
-                excelValueList.Clear();
-                return excelValueList;
-            }
             var document = SpreadsheetDocument.Open(fileName, false);
             var sheet = document.WorkbookPart.Workbook.Descendants<Sheet>().First();
             var worksheetPart = (WorksheetPart)document.WorkbookPart.GetPartById(sheet.Id);
