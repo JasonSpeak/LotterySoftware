@@ -13,7 +13,7 @@
                 x:Key="Locator"
                 d:IsDataSource="True" />
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Resources.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Resources/Styles/Style.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

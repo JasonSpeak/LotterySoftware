@@ -106,7 +106,7 @@
     <Compile Include="Model\XmlHandle.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Page Include="Resources\Resources.xaml">
+    <Page Include="Resources\Styles\Style.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -180,7 +180,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Lottery.png" />
+    <Resource Include="Resources\Images\Lottery.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

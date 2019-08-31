@@ -119,14 +119,6 @@ namespace LotterySoftware.ViewModel
 
         public MainViewModel()
         {
-            InitAwards();
-            CanImport = true;
-            _currentAwardIndex = 0;
-
-            _timer = new DispatcherTimer();
-            _timer.Tick += OnRefreshClockTimeUp;
-            _timer.Interval = new TimeSpan(90000);
-
             _drawersImport = new List<Drawer>();
             _winningDrawer = new ObservableCollection<Drawer>();
             ShowDrawerList = new ObservableCollection<Drawer>();
@@ -139,11 +131,21 @@ namespace LotterySoftware.ViewModel
             CloseWindowCommand = new RelayCommand(OnCloseWindowCommandExecuted);
             RecoveryWindowCommand = new RelayCommand(OnRecoveryWindowCommandExecuted);
             LotteryButtonCommand = new RelayCommand(OnLotteryFunctionCommandExecuted);
+
+            _canImport = true;
+            _currentAwardIndex = 0;
+
+            _timer = new DispatcherTimer();
+            _timer.Tick += OnRefreshClockTimeUp;
+            _timer.Interval = new TimeSpan(90000);
+
+            InitAwards();
         }
 
         private void OnLotteryFunctionCommandExecuted()
         {
-            if (CanLottery != true) return;
+            if (!CanLottery) return;
+
             if (!IsStartOrPause)
             {
                 _timer.Start();
@@ -170,6 +172,7 @@ namespace LotterySoftware.ViewModel
         private void OnRefreshClockTimeUp(object sender, EventArgs e)
         {
             ShowDrawerList.Clear();
+
             if (ShowAwardsList[_currentAwardIndex].AwardsNumber > _drawersImport.Count)
             {
                 for (var i=0;i<_drawersImport.Count;i++)
@@ -182,6 +185,7 @@ namespace LotterySoftware.ViewModel
                 CanLottery = false;
                 return;
             }
+
             var indexList = new List<int>();
             var random = new Random();
             for (var i = 0; i < ShowAwardsList[_currentAwardIndex].AwardsNumber; i++)
@@ -197,6 +201,7 @@ namespace LotterySoftware.ViewModel
                 var drawer = new Drawer(_drawersImport[index].DrawCode, _drawersImport[index].DrawName) {Id = i + 1};
                 ShowDrawerList.Add(drawer);
             }
+
             IsDrawerPassOnePage = ShowDrawerList.Count > 10;
         }
 
@@ -206,6 +211,7 @@ namespace LotterySoftware.ViewModel
             {
                 ShowAwardsList[_currentAwardIndex].AwardsNumber = _drawersImport.Count;
             }
+
             for (var i = 0; i < ShowAwardsList[_currentAwardIndex].AwardsNumber; i++)
             {
                 var winners = new Drawer(ShowDrawerList[i].DrawCode, ShowDrawerList[i].DrawName)
@@ -226,6 +232,7 @@ namespace LotterySoftware.ViewModel
                 CanLottery = false;
                 CanExport = true;
             }
+
             IsDrawerPassOnePage = ShowDrawerList.Count > 10;
         }
 
@@ -242,11 +249,10 @@ namespace LotterySoftware.ViewModel
                     return;
                 }
             }
+
             var fileName = GetOpenDialogFileName();
-            if (fileName == "")
-            {
-                return;
-            }
+            if (string.IsNullOrEmpty(fileName)) return;
+
             _drawersImport = ExcelHandle.GetDrawers(fileName);
             if (_drawersImport == null) return;
             {
@@ -265,6 +271,7 @@ namespace LotterySoftware.ViewModel
                 if (ShowDrawerList.Count == 0) return;
                 CanLottery = true;
             }
+
             IsDrawerPassOnePage = ShowDrawerList.Count >= 10;
         }
 
@@ -296,7 +303,7 @@ namespace LotterySoftware.ViewModel
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog()
             {
-                Filter = "Excel Files(*.xlsx)|*.xlsx"
+                Filter = "Excel Files|*.xls;*.xlsx"
             };
             openFileDialog.ShowDialog();
             return openFileDialog.FileName;

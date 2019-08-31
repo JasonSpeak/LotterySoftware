@@ -14,10 +14,6 @@ namespace LotterySoftware.Model
     {
         private const int OfReadwrite = 2;
         private const int OfShareDenyNone = 0x40;
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr _lopen(string pathFileName, int iReadWrite);
-        [DllImport("kernel32.dll")]
-        private static extern bool CloseHandle(IntPtr hObject);
         private static readonly IntPtr FileError = new IntPtr(-1);
         
         public static List<Drawer> GetDrawers(string fileName)
@@ -120,5 +116,10 @@ namespace LotterySoftware.Model
             CloseHandle(handle);
             return true;
         }
+
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr _lopen(string pathFileName, int iReadWrite);
+        [DllImport("kernel32.dll")]
+        private static extern bool CloseHandle(IntPtr hObject);
     }
 }
